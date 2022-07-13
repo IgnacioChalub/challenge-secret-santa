@@ -5,6 +5,7 @@ import { IGroupRepository } from "@SecretSanta/repository/group.repository.inter
 import { IGroupService } from "@SecretSanta/service/group.service.interface";
 import { RaffleDto } from "@models/couple/dto";
 import { Couple } from "@models/couple/entities/couple.entity";
+import { YearAlreadyRaffled } from "@shared/errors";
 
 @Injectable()
 export class GroupService implements IGroupService {
@@ -24,10 +25,13 @@ export class GroupService implements IGroupService {
   /**
    * 1. a person can not be their own secret santa
    * 2. a person can be secret santa if it has not been in the last 2 years
+   * 3. only one secret santa per group in a year
    */
   async raffle(raffleDto: RaffleDto): Promise<Couple[]> {
-    console.log(raffleDto)
-    return []    
+    if(await this.groupRepository.yearAlreadyRaffled(raffleDto)) throw new YearAlreadyRaffled(raffleDto.groupId, raffleDto.year);    
+
+
+    return []
   }
 
 }

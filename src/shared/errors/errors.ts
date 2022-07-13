@@ -29,3 +29,9 @@ export class NotFoundError extends ApiError {
     super(HttpStatus.NOT_FOUND, `Not Found Error: ${model} not found`);
   }
 }
+
+export class YearAlreadyRaffled extends ApiError {
+  constructor(groupId: string, year: number) {
+    super(HttpStatus.BAD_REQUEST, `Group ${groupId} already raffled in ${year}`);
+  }
+}

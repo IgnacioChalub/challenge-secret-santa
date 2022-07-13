@@ -4,6 +4,7 @@ import { BaseRepository } from "@shared/repository";
 import { Group } from "@models/group/entities";
 import { IGroupRepository } from "@SecretSanta/repository/group.repository.interface";
 import { AddParticipantDto, CreateGroupDto } from "@models/group/dto";
+import { RaffleDto } from "@models/couple/dto";
 
 @Injectable()
 export class GroupRepository
@@ -42,5 +43,22 @@ export class GroupRepository
         },
       },
     });
+  }
+
+  async yearAlreadyRaffled(raffleDto: RaffleDto): Promise<boolean> {
+    const data = await this.findOne({
+      where: {
+        id: raffleDto.groupId,
+      },
+      include: {
+        couples: {
+          where: {
+            year: raffleDto.year
+          }
+        }
+      }
+    })
+    if(data) return true;
+    return false;
   }
 }
