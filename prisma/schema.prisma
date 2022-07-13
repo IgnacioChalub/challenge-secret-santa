@@ -1,0 +1,54 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+// generator dto {
+//  provider                        = "prisma-generator-nestjs-dto"
+//  output                          = "../src/models"
+//  outputToNestJsResourceStructure = "true"
+//  dtoSuffix                       = "DTO"
+//  reExport                        = "true"
+//  fileNamingStyle                 = "camel"
+//}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Participant {
+  id           String                 @id @default(uuid())
+  name         String                 @unique
+  groups       ParticipantsOnGroups[]
+  giftees      Couples[]              @relation("giftees")
+  secretSantas Couples[]              @relation("secretSantas")
+}
+
+model Group {
+  id           String                 @id @default(uuid())
+  participants ParticipantsOnGroups[]
+  couples      Couples[]
+}
+
+model ParticipantsOnGroups {
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId String
+  group         Group       @relation(fields: [groupId], references: [id])
+  groupId       String
+
+  @@id([participantId, groupId])
+}
+
+model Couples {
+  secretSanta   Participant @relation(name: "secretSantas", fields: [secretSantaId], references: [id])
+  secretSantaId String
+  giftee        Participant @relation(name: "giftees", fields: [gifteeId], references: [id])
+  gifteeId      String
+  group         Group       @relation(fields: [groupId], references: [id])
+  groupId       String
+
+  year Int
+
+  @@id([secretSantaId, gifteeId, groupId, year])
+}
