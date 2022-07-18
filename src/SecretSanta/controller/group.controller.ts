@@ -11,14 +11,7 @@ import { Couple } from "@models/couple/entities/couple.entity";
 export class GroupController {
   constructor(
     @Inject(IGroupService) private readonly groupService: IGroupService,
-    @Inject(IParticipantService)
-    private readonly participantService: IParticipantService
   ) {}
-
-  @Post("/create-participant")
-  async createParticipant(@Body() participant: CreateParticipantDto): Promise<Participant> {
-    return await this.participantService.createParticipant(participant);
-  }
 
   @Post()
   async createGroup(@Body() group: CreateGroupDto): Promise<Group> {

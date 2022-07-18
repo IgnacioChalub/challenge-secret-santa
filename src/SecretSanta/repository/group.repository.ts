@@ -45,20 +45,16 @@ export class GroupRepository
     });
   }
 
-  async yearAlreadyRaffled(raffleDto: RaffleDto): Promise<boolean> {
+  async getAllParticipantsInGroup(raffleDto: RaffleDto): Promise<any[]> {
     const data = await this.findOne({
       where: {
         id: raffleDto.groupId,
       },
       include: {
-        couples: {
-          where: {
-            year: raffleDto.year
-          }
-        }
+        participants: true
       }
     })
-    if(data) return true;
-    return false;
+    return data.participants
   }
+
 }

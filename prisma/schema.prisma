@@ -21,14 +21,14 @@ model Participant {
   id           String                 @id @default(uuid())
   name         String                 @unique
   groups       ParticipantsOnGroups[]
-  giftees      Couples[]              @relation("giftees")
-  secretSantas Couples[]              @relation("secretSantas")
+  giftees      Couple[]              @relation("giftees")
+  secretSantas Couple[]              @relation("secretSantas")
 }
 
 model Group {
   id           String                 @id @default(uuid())
   participants ParticipantsOnGroups[]
-  couples      Couples[]
+  couples      Couple[]
 }
 
 model ParticipantsOnGroups {
@@ -40,7 +40,8 @@ model ParticipantsOnGroups {
   @@id([participantId, groupId])
 }
 
-model Couples {
+model Couple {
+  id String @default(uuid())
   secretSanta   Participant @relation(name: "secretSantas", fields: [secretSantaId], references: [id])
   secretSantaId String
   giftee        Participant @relation(name: "giftees", fields: [gifteeId], references: [id])

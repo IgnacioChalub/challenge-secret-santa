@@ -6,4 +6,5 @@ export class Couple {
     giftee: Participant;
     group: Group;
     year: number;
+    id: string;
 }

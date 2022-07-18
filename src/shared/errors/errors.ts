@@ -35,3 +35,9 @@ export class YearAlreadyRaffled extends ApiError {
     super(HttpStatus.BAD_REQUEST, `Group ${groupId} already raffled in ${year}`);
   }
 }
+
+export class CanNotRaffle extends ApiError {
+  constructor(groupId: string, year: number) {
+    super(HttpStatus.BAD_REQUEST, `Group ${groupId} can not match conditions to be raffled in year ${year}`);
+  }
+}

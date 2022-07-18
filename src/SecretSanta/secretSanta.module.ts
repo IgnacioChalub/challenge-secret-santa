@@ -11,6 +11,9 @@ import { ParticipantRepository } from "@SecretSanta/repository/participant.repos
 import { SharedModule } from "@shared/shared.module";
 import { GroupController } from "@SecretSanta/controller/group.controller";
 import { Module } from "@nestjs/common";
+import { ICoupleRepository } from "./repository/couple.repository.interface";
+import { CoupleRepository } from "./repository/couple.repository";
+import { ParticipantControlller } from "./controller/participant.controller";
 
 const groupServiceProvider = {
   provide: IGroupService,
@@ -32,14 +35,20 @@ const participantRepositoryProvider = {
   useClass: ParticipantRepository,
 };
 
+const coupleRepositoryProvider = {
+  provide: ICoupleRepository,
+  useClass: CoupleRepository,
+};
+
 @Module({
   imports: [SharedModule],
-  controllers: [GroupController],
+  controllers: [GroupController, ParticipantControlller],
   providers: [
     groupServiceProvider,
     groupRepositoryProvider,
     participantRepositoryProvider,
     participantServiceProvider,
+    coupleRepositoryProvider
   ],
 })
 export class GroupModule {}
