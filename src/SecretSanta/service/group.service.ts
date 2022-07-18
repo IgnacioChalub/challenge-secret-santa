@@ -81,7 +81,6 @@ export class GroupService implements IGroupService {
     }
 
     if(posibleMatches.length == 2) throw new CanNotRaffle(raffleDto.groupId, raffleDto.year);
-    console.log(posibleMatches)
 
     /**
      * Recorrer "grafo" buscando ciclo
@@ -93,6 +92,8 @@ export class GroupService implements IGroupService {
     ids.push(posibleMatches[0].participantId)
 
     ids = this.findCycle(ids, posibleMatches, positionInGraph, positionInIds);
+
+    if(ids.length == 0) throw new CanNotRaffle(raffleDto.groupId, raffleDto.year);
 
     /**
      * armo parejas
@@ -141,6 +142,9 @@ export class GroupService implements IGroupService {
       }
 
       let nextId = this.selectNext(graph, positionInGraph, ids, positionInIds);
+
+
+      if(nextId == -1 && positionInIds == 0) return []
 
       if(nextId == -1){
           positionInIds = positionInIds - 1; 
