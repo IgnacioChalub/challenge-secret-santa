@@ -4,7 +4,6 @@ import { BaseRepository } from "@shared/repository";
 import { Group } from "@models/group/entities";
 import { IGroupRepository } from "@SecretSanta/repository/group.repository.interface";
 import { AddParticipantDto, CreateGroupDto } from "@models/group/dto";
-import { RaffleDto } from "@models/couple/dto";
 
 @Injectable()
 export class GroupRepository
@@ -43,18 +42,6 @@ export class GroupRepository
         },
       },
     });
-  }
-
-  async getAllParticipantsInGroup(raffleDto: RaffleDto): Promise<any[]> {
-    const data = await this.findOne({
-      where: {
-        id: raffleDto.groupId,
-      },
-      include: {
-        participants: true
-      }
-    })
-    return data.participants
   }
 
 }

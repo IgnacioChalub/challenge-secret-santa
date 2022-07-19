@@ -19,7 +19,7 @@ export class BaseRepository<T extends { id: any }>
   }
 
   async createMany(data: any): Promise<T[]> {
-    return await this.db[this.model].createMany({ data });
+    return this.db[this.model].createMany({ data });
   }
 
   async findAll(): Promise<T[]> {

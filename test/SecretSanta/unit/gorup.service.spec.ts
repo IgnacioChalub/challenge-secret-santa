@@ -1,7 +1,7 @@
 import { RaffleDto } from '@models/couple/dto';
 import { Couple } from '@models/couple/entities/couple.entity';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CoupleRepository, GroupRepository, ICoupleRepository, IGroupRepository } from '@SecretSanta/repository';
+import { CoupleRepository, GroupRepository, ICoupleRepository, IGroupRepository, IParticipantRepository, ParticipantRepository } from '@SecretSanta/repository';
 
 import { GroupService, IGroupService } from '@SecretSanta/service';
 import { YearAlreadyRaffled } from '@shared/errors';
@@ -12,6 +12,7 @@ describe('GroupService  Unit Test', () => {
   let groupService: IGroupService;
   let groupRepository: IGroupRepository;
   let coupleRepository: ICoupleRepository;
+  let participantRepository: IParticipantRepository;
 
   beforeEach(async () => {
     const groupServiceProvider = {
@@ -29,14 +30,20 @@ describe('GroupService  Unit Test', () => {
         useClass: CoupleRepository
     }
 
+    const participantRepositoryProvider = {
+        provide: IParticipantRepository,
+        useClass: ParticipantRepository
+    }
+
     const app: TestingModule = await Test.createTestingModule({
       imports: [SharedModule],
-      providers: [groupRepositoryProvider, groupServiceProvider, coupleRepositoryProvider],
+      providers: [groupRepositoryProvider, groupServiceProvider, coupleRepositoryProvider, participantRepositoryProvider],
     }).compile();
 
     groupService = app.get<IGroupService>(IGroupService);
     groupRepository = app.get<IGroupRepository>(IGroupRepository);
     coupleRepository = app.get<ICoupleRepository>(ICoupleRepository);
+    participantRepository = app.get<IParticipantRepository>(IParticipantRepository);
   });
 
   describe('raffle', () => {
@@ -45,20 +52,20 @@ describe('GroupService  Unit Test', () => {
 
         const participants = [
             {
-                participantId: "1",
-                groupId: "group1"
+                id: "1",
+                name: "group1"
             },
             {
-                participantId: "2",
-                groupId: "group1"
+                id: "2",
+                name: "group1"
             },
             {
-                participantId: "3",
-                groupId: "group1"
+                id: "3",
+                name: "group1"
             },
             {
-                participantId: "4",
-                groupId: "group1"
+                id: "4",
+                name: "group1"
             },
         ]
 
@@ -125,7 +132,7 @@ describe('GroupService  Unit Test', () => {
             year: 2022
         }
 
-        jest.spyOn(groupRepository, 'getAllParticipantsInGroup').mockImplementation(() => Promise.resolve(participants));
+        jest.spyOn(participantRepository, 'getAllParticipantsInGroup').mockImplementation(() => Promise.resolve(participants));
         jest.spyOn(coupleRepository, 'getPreviousCouples').mockImplementation(() => Promise.resolve(previousCouples));
         jest.spyOn(coupleRepository, 'yearAlreadyRaffled').mockImplementation(() => Promise.resolve(false));
         jest.spyOn(coupleRepository, 'createMany').mockImplementation(() => Promise.resolve([]));
@@ -156,16 +163,16 @@ describe('GroupService  Unit Test', () => {
     it('should throw error if there are no possible matches', async () => {
         const participants = [
             {
-                participantId: "1",
-                groupId: "group1"
+                id: "1",
+                name: "group1"
             },
             {
-                participantId: "2",
-                groupId: "group1"
+                id: "2",
+                name: "group1"
             },
             {
-                participantId: "3",
-                groupId: "group1"
+                id: "3",
+                name: "group1"
             },
         ]
 
@@ -219,7 +226,7 @@ describe('GroupService  Unit Test', () => {
             year: 2022
         }
 
-        jest.spyOn(groupRepository, 'getAllParticipantsInGroup').mockImplementation(() => Promise.resolve(participants));
+        jest.spyOn(participantRepository, 'getAllParticipantsInGroup').mockImplementation(() => Promise.resolve(participants));
         jest.spyOn(coupleRepository, 'getPreviousCouples').mockImplementation(() => Promise.resolve(previousCouples));
         jest.spyOn(coupleRepository, 'yearAlreadyRaffled').mockImplementation(() => Promise.resolve(false));
         jest.spyOn(coupleRepository, 'createMany').mockImplementation(() => Promise.resolve([]));

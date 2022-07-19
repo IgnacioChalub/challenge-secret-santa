@@ -7,6 +7,7 @@ import { RaffleDto } from "@models/couple/dto";
 import { Couple } from "@models/couple/entities/couple.entity";
 import { CanNotRaffle, YearAlreadyRaffled } from "@shared/errors";
 import { ICoupleRepository } from "@SecretSanta/repository/couple.repository.interface";
+import { IParticipantRepository } from "@SecretSanta/repository";
 
 @Injectable()
 export class GroupService implements IGroupService {
@@ -15,7 +16,9 @@ export class GroupService implements IGroupService {
     private readonly groupRepository: IGroupRepository,
     @Inject(ICoupleRepository)
     private readonly coupleRepository: ICoupleRepository,
-  ) {}
+    @Inject(IParticipantRepository)
+    private readonly participantRepository: IParticipantRepository,
+) {}
 
   async create(group: CreateGroupDto): Promise<Group> {
     return await this.groupRepository.createGroup(group);
@@ -30,11 +33,7 @@ export class GroupService implements IGroupService {
     if(await this.coupleRepository.yearAlreadyRaffled(raffleDto)) throw new YearAlreadyRaffled(raffleDto.groupId, raffleDto.year);    
     
     const previousCouples = await this.coupleRepository.getPreviousCouples(raffleDto);
-
-    /**
-     * participantId, groupId
-     */
-    const participants = await this.groupRepository.getAllParticipantsInGroup(raffleDto);
+    const participants = await this.participantRepository.getAllParticipantsInGroup(raffleDto);
 
     /**
      * "grafo" con listas de adyacencia
@@ -51,14 +50,14 @@ export class GroupService implements IGroupService {
     let oldParticipantCouples = 0
     for (const participant of participants) {
       for (const couple of previousCouples) {
-        if((couple.secretSanta.id == participant.participantId || couple.giftee.id == participant.participantId) && !checkedIds.includes(participant.participantId)){
-          checkedIds.push(participant.participantId);
+        if((couple.secretSanta.id == participant.id || couple.giftee.id == participant.id) && !checkedIds.includes(participant.id)){
+          checkedIds.push(participant.id);
           oldParticipantCouples++;
         } 
       }
     }
     for (const participant of participants) {
-      const participantId = participant.participantId;
+      const participantId = participant.id;
       const posibleGifteesIds: string[] = this.getPosibleGifteesIds(participantId, previousCouples)
       if(posibleGifteesIds.length == oldParticipantCouples) {
         newIds.push(participantId)
@@ -76,7 +75,7 @@ export class GroupService implements IGroupService {
     }
 
     if(posibleMatches.length == 2) throw new CanNotRaffle(raffleDto.groupId, raffleDto.year);
-
+    
     /**
      * Recorrer "grafo" buscando ciclo
      */
