@@ -13,9 +13,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
-    "@brand/(.*)": "<rootDir>/src/brand/$1",
-    "@price/(.*)": "<rootDir>/src/price/$1",
-    "@product/(.*)": "<rootDir>/src/product/$1",
+    "@SecretSanta/(.*)": "<rootDir>/src/SecretSanta/$1",
     "@shared/(.*)": "<rootDir>/src/shared/$1",
     "@models/(.*)": "<rootDir>/src/models/$1"
   },

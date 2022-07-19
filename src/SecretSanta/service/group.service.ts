@@ -24,18 +24,13 @@ export class GroupService implements IGroupService {
   async addParticipant(addParticipantDto: AddParticipantDto): Promise<void> {
     await this.groupRepository.addParticipant(addParticipantDto);
   }
-
-  /**
-   * 1. a person can not be their own secret santa
-   * 2. a person can be secret santa if it has not been in the last 2 years
-   * 3. only one secret santa per group in a year
-   */
+  
   async raffle(raffleDto: RaffleDto): Promise<Couple[]> {
     
     if(await this.coupleRepository.yearAlreadyRaffled(raffleDto)) throw new YearAlreadyRaffled(raffleDto.groupId, raffleDto.year);    
     
     const previousCouples = await this.coupleRepository.getPreviousCouples(raffleDto);
-    
+
     /**
      * participantId, groupId
      */
@@ -180,7 +175,6 @@ export class GroupService implements IGroupService {
       }
   } 
 
-  //selects next posible id or returns -1 if there are not
   selectNext(graph: any[], positionInGraph: number, ids: any[], positionInIds: number)  {
       const posibleGiftees = graph[positionInGraph].posibleGifteesIds;
       for(let i = graph[positionInGraph].indexInPosibleGiftees; i < posibleGiftees.length; i++){
