@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CoupleRepository, GroupRepository, ICoupleRepository, IGroupRepository } from '@SecretSanta/repository';
 
 import { GroupService, IGroupService } from '@SecretSanta/service';
+import { YearAlreadyRaffled } from '@shared/errors';
 
 import { SharedModule } from '@shared/shared.module';
 
@@ -40,7 +41,7 @@ describe('GroupService  Unit Test', () => {
 
   describe('raffle', () => {
 
-    it('match couples', async () => {
+    it('should match couples', async () => {
 
         const participants = [
             {
@@ -135,57 +136,100 @@ describe('GroupService  Unit Test', () => {
   
     });
 
+    it('should throw error if year already raffled', async () => {
+
+        const input: RaffleDto = {
+            groupId: "group1",
+            year: 2022
+        }
+
+        jest.spyOn(coupleRepository, 'yearAlreadyRaffled').mockImplementation(() => Promise.resolve(true));
+
+        try {
+            await groupService.raffle(input);
+        } catch (error) {
+            expect(error.message).toBe(`Group ${input.groupId} already raffled in ${input.year}`);
+        }
+
+    });
+
+    it('should throw error if there are no possible matches', async () => {
+        const participants = [
+            {
+                participantId: "1",
+                groupId: "group1"
+            },
+            {
+                participantId: "2",
+                groupId: "group1"
+            },
+            {
+                participantId: "3",
+                groupId: "group1"
+            },
+        ]
+
+        const previousCouples: Couple[] = [
+            {
+                id: 'some id',
+                group: {id: 'group1'},
+                year: 2020,
+                secretSanta: { id: '1', name: 'some name' },
+                giftee: { id: '2', name: 'some name' }
+            }, 
+            {
+                id: 'some id',
+                group: {id: 'group1'},
+                year: 2020,
+                secretSanta: { id: '2', name: 'some name' },
+                giftee: { id: '3', name: 'some name' }
+            },   
+            {
+                id: 'some id',
+                group: {id: 'group1'},
+                year: 2020,
+                secretSanta: { id: '3', name: 'some name' },
+                giftee: { id: '1', name: 'some name' }
+            },  
+            {
+                id: 'some id',
+                group: {id: 'group1'},
+                year: 2021,
+                secretSanta: { id: '1', name: 'some name' },
+                giftee: { id: '3', name: 'some name' }
+            }, 
+            {
+                id: 'some id',
+                group: {id: 'group1'},
+                year: 2021,
+                secretSanta: { id: '2', name: 'some name' },
+                giftee: { id: '1', name: 'some name' }
+            },   
+            {
+                id: 'some id',
+                group: {id: 'group1'},
+                year: 2021,
+                secretSanta: { id: '3', name: 'some name' },
+                giftee: { id: '2', name: 'some name' }
+            },              
+        ]
+
+        const input: RaffleDto = {
+            groupId: "group1",
+            year: 2022
+        }
+
+        jest.spyOn(groupRepository, 'getAllParticipantsInGroup').mockImplementation(() => Promise.resolve(participants));
+        jest.spyOn(coupleRepository, 'getPreviousCouples').mockImplementation(() => Promise.resolve(previousCouples));
+        jest.spyOn(coupleRepository, 'yearAlreadyRaffled').mockImplementation(() => Promise.resolve(false));
+        jest.spyOn(coupleRepository, 'createMany').mockImplementation(() => Promise.resolve([]));
+
+        try {
+            await groupService.raffle(input);
+        } catch (error) {
+            expect(error.message).toBe(`Group ${input.groupId} can not match conditions to be raffled in year ${input.year}`);
+        }
+
+    });
   });
-
-//   describe('create', () => {
-//     it('should return a price', async () => {
-//       const input: CreatePriceDTO = {
-//         productId: '1',
-//         price: 420,
-//         offer: 'SALE',
-//         asOf: new Date(),
-//       };
-//       const price: Price = {
-//         id: '1',
-//         productId: '1',
-//         price: 420,
-//         offer: 'SALE',
-//         asOf: new Date(),
-//         until: null,
-//       };
-//       jest.spyOn(priceRepository, 'create').mockImplementation(() => Promise.resolve(price));
-//       const result = await priceService.create(input);
-//       expect(result).toEqual(price);
-//     });
-//   });
-
-//   describe('findCurrentByProductId', () => {
-//     it('if findCurrentByProductId() has no prices, should return empty array', async () => {
-//       jest.spyOn(priceRepository, 'findCurrentByProductId').mockImplementation(() => Promise.resolve([]));
-//       expect(await priceService.findCurrentByProductId('1')).toEqual([]);
-//     });
-
-//     it('if findCurrentByProductId() has results should return an array of prices', async () => {
-//       const prices: Price[] = [
-//         {
-//           id: '1',
-//           productId: '1',
-//           price: 420,
-//           offer: 'SALE',
-//           asOf: new Date(),
-//           until: null,
-//         },
-//         {
-//           id: '2',
-//           productId: '1',
-//           price: 450,
-//           offer: 'NORMAL',
-//           asOf: new Date(),
-//           until: null,
-//         },
-//       ];
-//       jest.spyOn(priceRepository, 'findCurrentByProductId').mockImplementation(() => Promise.resolve(prices));
-//       expect(await priceService.findCurrentByProductId('1')).toBe(prices);
-//     });
-//   });
 });

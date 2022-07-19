@@ -14,8 +14,6 @@ export class CoupleRepository
         super(db, "couple");
     }
 
-
-
     async yearAlreadyRaffled(raffleDto: RaffleDto): Promise<boolean> {
         const data = await this.findOne({
           where: {
